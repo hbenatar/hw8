@@ -1,0 +1,116 @@
+<!doctype html>
+<html>
+
+<head>
+  <title>API Fun</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+      background-color: #a6bfed;
+      text-align: center;
+      font-family: 'Trebuchet MS';
+      font-size: 18px;
+    }
+    h1 {
+      font-size: 40px;
+      color: #2f6fe7;
+    }
+    h1 {
+      font-size: 30px;
+      color: #2f6fe7;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1>Phone Number Validator</h1>
+  
+  <div>Enter a phone number (including the country code):</div>
+
+  <form>
+    +<input type="text" id="number" required="1"><br />
+    <input type="button" id="submit" value="Validate using AJAX!" onclick="requestData()">
+    <input type="button" id="submit" value="Validate using fetch!" onclick="fetchData()">
+	</form>
+
+  <div id="result" style="display:none">&nbsp;</div><br />
+
+  <h1>Abstract's Phone Validation API</h1>
+  <p>I chose to use <a href="https://app.abstractapi.com/api/phone-validation/documentation">
+     Abstract's Phone Validation API</a>, which is a RESTful JSON API that determines if a 
+     specified phone number is valid and returns other details such as the location, type of number,
+     carrier, and country code. It detects phone numbers form over 190 countries.</p>
+  <p>I found the API on this GitHub list: https://github.com/public-apis/public-apis</p>
+  <p>This API is very simple and doesn't have any options. While I found other phone validator
+     API's with additional options, I found this one the simplest to use since it returned all 
+     the data I felt was necessary and had great documentation.</p>
+  <p>I think that this API could be extremely useful in any application that allows a user
+     to specify a phone number as contact information in order to validate that the number exists.
+     It could also be used as a security measure for websites which want to prevent spam accounts
+     and only allow one account per person. This way noone could use a fake phone number.
+     It also gives valuable information such as the country of the phone number, which 
+     could help for calculating call costs or in general for a business to know where their
+     website traffic is coming from.</p>
+
+  <script>
+
+    function requestData() {
+      // get input phone number and result div
+      num = document.getElementById("number").value;
+      result = document.getElementById("result");
+
+      // create XMLHttpRequest
+      var reqObj = new XMLHttpRequest();
+      if (!reqObj) {
+        alert("Unable to create HTTPRequest object");
+        return;
+      }
+
+      // callback function
+      reqObj.onreadystatechange = function () {
+        if (reqObj.readyState === 4 && reqObj.status === 200) {
+          data = reqObj.responseText;
+          data = JSON.parse(data);
+
+          if (data.valid == true)
+            result.innerHTML = "+" + num + " is a valid " + data.type + " phone number from " + data.location + "!<br>";
+          else
+            result.innerHTML = "+" + num + " is not a valid phone number!<br>";
+
+          result.style.display = "block";
+        }
+      }
+
+      // send request
+      reqObj.open("GET", "https://phonevalidation.abstractapi.com/v1/?api_key=63f6941380904cd5a43bccc4991d12cb&phone=" + num, true);
+      reqObj.send(null);
+    }
+
+  function fetchData() {
+    // get input phone number and result div
+    num = document.getElementById("number").value;
+    result = document.getElementById("result");
+
+    res = fetch("https://phonevalidation.abstractapi.com/v1/?api_key=63f6941380904cd5a43bccc4991d12cb&phone=" + num)
+      .then (res => res.text())
+      .then (data => {
+        data = JSON.parse(data);
+
+        if (data.valid == true)
+          result.innerHTML = "+" + num + " is a valid " + data.type + " phone number from " + data.location + "!<br>";
+        else
+          result.innerHTML = "+" + num + " is not a valid phone number!<br>";
+
+        result.style.display = "block";
+      })
+      .catch (error => console.log(error))
+  }
+
+  </script>
+  
+</body>
+</html>
